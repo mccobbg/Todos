@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "flex-start",
-    padding: 8,
+    padding: 0,
   },
   paragraph: {
     margin: 24,

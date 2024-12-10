@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
-import { Text, StyleSheet, FlatList, TextInput, Pressable, View } from "react-native";
+import { Text, StyleSheet, FlatList, TextInput, Pressable, View, Platform } from "react-native";
 
 const Todos = () => {
   const itemIndex = useRef(0);
+  const textInputRef = useRef(null);
   const [todos, setTodos] = useState([]);
   const [text, setText] = useState('');
   const [editText, setEditText] = useState('');
@@ -11,14 +12,14 @@ const Todos = () => {
   const renderTodo = ({item}) => {
 
     return (
-      <View style={styles.renderView}>
+      <>
         {item.id !== editIndex ? (
-        <>
+        <View style={styles.renderView}>
           <Text editable={false} style={[styles.renderText, {fontWeight: 'bold', width: '5%'}]}>
             {`${item.id}.`}
           </Text>
 
-          <Text editable={false} style={[styles.renderText, {width: '45%'}]}>
+          <Text editable={false} style={[styles.renderText, {width: '45%', minWidth: '45%'}]}>
             {`${item.text}`}
           </Text>
           <Pressable style={styles.editPressable} onPress={() => editTodo(item)}>
@@ -27,9 +28,9 @@ const Todos = () => {
           <Pressable style={styles.removePressable} onPress={() => removeTodo(item)}>
             <Text style={styles.buttonText}>Remove</Text>
           </Pressable>
-        </>
+        </View>
         ) : (
-        <>
+        <View style={styles.renderView}>
           <Text editable={false} style={[styles.renderText, {fontWeight: 'bold', width: '5%'}]}>
             {`${item.id}.`}
           </Text>
@@ -41,9 +42,9 @@ const Todos = () => {
             onChangeText={text => setEditText(text)}
             maxLength={200}
           />
-        </>
+        </View>
         )}
-      </View>
+      </>
     );
   }
  
@@ -55,6 +56,9 @@ const Todos = () => {
       }
       setTodos([...todos, todo]);
       setText('');
+      if (textInputRef?.current) {
+        textInputRef.current.clear();
+      }
     }
   }
 
@@ -67,8 +71,7 @@ const Todos = () => {
   const removeTodo = (item) => {
 
     itemIndex.current = 0;
-    // filter
-    const arr = todos.filter(todo => {
+    const arr = todos.filter(todo => { // filter
       if (todo.id !== item.id) {
 
         todo.id = ++itemIndex.current;
@@ -82,7 +85,7 @@ const Todos = () => {
 
   const saveEditedTodo = (item) => {
 
-    // filter
+    // find the item's index in to todos array
     const index = todos.findIndex(todo => {
       return todo.id === item.id});
 
@@ -97,9 +100,11 @@ const Todos = () => {
   return (
     <View style={styles.todos}>
       <TextInput
+        ref={textInputRef}
         style={styles.textInput}
         placeholder="Todo"
         onChangeText={text => setText(text)}
+        onSubmitEditing={addTodo}
         maxLength={200}
         value={text}
       />
@@ -127,27 +132,36 @@ const styles = StyleSheet.create({
       alignContent: "center",
       alignItems: "center",
       backgroundColor: "white",
-      padding: 8
   },
   submitText: {
     fontSize: 16,
     color: "white"
   },
   pressable: {
-    width: '40%', 
     marginTop: 14,
     backgroundColor: "blue",
     padding: 12,
     borderWidth: 1,
     borderRadius: 6,
-    alignItems: "center"
+    alignItems: "center",
+    ...Platform.select({
+      android: {
+        width: '60%',
+      },
+      ios: {
+        width: '60%',
+      },
+      default: {
+        width: '40%',
+      },
+    }),
   },
   flatView: {
     flex: 1,
     marginTop: 14,
+    minWidth: "100%",
     justifyContent: "flex-start",
     alignContent: "flex-start",
-    alignItems: "center"
   },
   renderText: {
     fontSize: 18,
@@ -162,20 +176,30 @@ const styles = StyleSheet.create({
     margin: 4,
   },
   listView: {
+    width: '100%',
     margin: 6,
     backgroundColor: "white",
   },
   textInput: {
-    width: '70%',
+    width: '60%',
     color: "darkBlue",
     fontSize: 16,
     height: 'auto',
     borderWidth: 1,
     borderColor: 'blue',
     borderRadius: 5,
-    padding: 8,
-    paddingTop: 12,
-    paddingBottom: 12,
+    padding: 12,
+    ...Platform.select({
+      android: {
+        width: '60%',
+      },
+      ios: {
+        width: '60%',
+      },
+      default: {
+        width: '40%',
+      },
+    }),
   },
   editPressable: {
     width: '15%', 
@@ -183,17 +207,13 @@ const styles = StyleSheet.create({
     backgroundColor: "blue",
     borderWidth: 1,
     borderRadius: 6,
-    marginRight: 4,
-    marginLeft: 2,
     alignItems: "center",
     justifyContent: "center"
-
   },
   removePressable: {
     width: '25%', 
     height: 30,
     backgroundColor: "red",
-    marginRight: 4,
     borderWidth: 1,
     borderRadius: 6,
     alignItems: "center",
@@ -205,11 +225,29 @@ const styles = StyleSheet.create({
   },
   renderView: {
     flex: 1,
-    width: '100%',
+    ...Platform.select({
+      android: {
+        width: '100%',
+        paddingLeft: 3,
+        paddingRight: 3,
+      },
+      ios: {
+        width: '100%',
+        paddingLeft: 3,
+        paddingRight: 3,
+      },
+      default: {
+        width: '60%',
+        paddingLeft: 12,
+        paddingRight: 12,
+      },
+    }),
     flexDirection: "row",
-    flexWrap: "wrap",
+    flexWrap: "nowrap",
+    justifyContent: "space-around",
     marginTop: 3,
     marginBottom: 3,
+
   },
   savePressable: {
     width: '60', 

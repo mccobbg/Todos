@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Directory Tree",
-    "slug": "DirectoryTree",
+    "name": "Todo List",
+    "slug": "TodoList",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
